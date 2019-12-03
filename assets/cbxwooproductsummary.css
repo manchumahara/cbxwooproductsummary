@@ -1,0 +1,5 @@
+.woocommerce .cbxwooproductsummary-single-product{}
+.woocommerce .cbxwooproductsummary-single-product .product .summary{
+	width: 100%;
+	float: none;
+}
