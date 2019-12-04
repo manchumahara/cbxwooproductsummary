@@ -15,7 +15,7 @@
  * Plugin Name:       CBX Woo Product Summary
  * Plugin URI:        https://codeboxr.com/product/cbx-woo-product-summary/
  * Description:       WooCommerce Product Summary
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            Codeboxr Team
  * Author URI:        https://codeboxr.com
  * License:           GPL-2.0+
@@ -32,7 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
 //CBX Woo Free Product Quick Checkout
 
 defined( 'CBXWOOPRODUCTSUMMARY_PLUGIN_NAME' ) or define( 'CBXWOOPRODUCTSUMMARY_PLUGIN_NAME', 'cbxwooproductsummary' );
-defined( 'CBXWOOPRODUCTSUMMARY_PLUGIN_VERSION' ) or define( 'CBXWOOPRODUCTSUMMARY_PLUGIN_VERSION', '1.0.1' );
+defined( 'CBXWOOPRODUCTSUMMARY_PLUGIN_VERSION' ) or define( 'CBXWOOPRODUCTSUMMARY_PLUGIN_VERSION', '1.0.2' );
 defined( 'CBXWOOPRODUCTSUMMARY_BASE_NAME' ) or define( 'CBXWOOPRODUCTSUMMARY_BASE_NAME', plugin_basename( __FILE__ ) );
 defined( 'CBXWOOPRODUCTSUMMARY_ROOT_PATH' ) or define( 'CBXWOOPRODUCTSUMMARY_ROOT_PATH', plugin_dir_path( __FILE__ ) );
 defined( 'CBXWOOPRODUCTSUMMARY_ROOT_URL' ) or define( 'CBXWOOPRODUCTSUMMARY_ROOT_URL', plugin_dir_url( __FILE__ ) );
@@ -104,7 +104,8 @@ class CBXWooProductSummary {
 			'show_sharing'     => 1,
         ), $atts,'cbxwooproductsummary' );
 
-		if ( ! isset( $atts['id'] ) && ! isset( $atts['sku'] ) ) {
+
+		if ( $atts['id']  == '' && $atts['sku']  == '') {
 			return '';
 		}
 
@@ -118,7 +119,9 @@ class CBXWooProductSummary {
 			'no_found_rows'       => 1,
 		);
 
-		if ( isset( $atts['sku'] ) ) {
+		$sku_used = false;
+
+		if ($atts['id'] == '' && $atts['sku'] != '' ) {
 			$args['meta_query'][] = array(
 				'key'     => '_sku',
 				'value'   => sanitize_text_field( $atts['sku'] ),
@@ -126,9 +129,11 @@ class CBXWooProductSummary {
 			);
 
 			$args['post_type'] = array( 'product', 'product_variation' );
+
+			$sku_used = true;
 		}
 
-		if ( isset( $atts['id'] ) ) {
+		if ( $atts['id'] != '' ) {
 			$args['p'] = absint( $atts['id'] );
 		}
 
@@ -175,7 +180,7 @@ class CBXWooProductSummary {
 		$preselected_id = '0';
 
 		// Check if sku is a variation.
-		if ( isset( $atts['sku'] ) && $single_product->have_posts() && 'product_variation' === $single_product->post->post_type ) {
+		if ( $sku_used && $single_product->have_posts() && 'product_variation' === $single_product->post->post_type ) {
 
 			$variation  = new WC_Product_Variation( $single_product->post->ID );
 			$attributes = $variation->get_attributes();
